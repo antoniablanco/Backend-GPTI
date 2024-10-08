@@ -14,7 +14,6 @@ python main.py
 
 # E-R
 
-
 # Docker
 
 To run docker, you must execute the following command from the directory where docker-compose.yml is located.
@@ -99,6 +98,10 @@ Must contain at list
 * POSTGRES_DB = postgres_db_name
 * DATABASE_URL= postgresql://username:password@db:5432/your_db_name
 * PORT = 9000
+* AZURE_OPENAI_API_KEY=
+* AZURE_OPENAI_ENDPOINT=https://recomendations-gpti.openai.azure.com/
+* AZURE_OPENAI_DEPLOYMENT_ID=recomendaciones-gpt-4
+* AZURE_OPENAI_API_VERSION=2023-03-15-preview
 
 # Generate seeds
 
@@ -115,5 +118,3 @@ In the .flake8 file the rules are define, and also those rules that should be ig
 ```
 flake8 .
 ```
-
-# EC2

@@ -1,11 +1,15 @@
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from database import Base, engine
+from database import Base, engine, get_db
 from dotenv import load_dotenv
 
 import os
 import time
 import json
+import requests
+
+# Importar los routers de las rutas
+from routes.openAi import router as openAiRouter
 
 # Cargo el archivo .env
 load_dotenv()
@@ -32,3 +36,6 @@ app.add_middleware(
 @app.get("/")
 async def read_root():
     return {"message":"Home page"}
+
+# Incluit los routers
+app.include_router(openAiRouter, prefix="/openai")
