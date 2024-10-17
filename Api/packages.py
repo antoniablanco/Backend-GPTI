@@ -18,7 +18,9 @@ packages = [
     "requests",
     "fastapi_mail",
     "boto3",
-    "flake8"
+    "flake8",
+    "pyjwt",
+    "bcrypt",
 ]
 
 
