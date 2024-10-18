@@ -10,11 +10,14 @@ import requests
 
 # Importar los modelos
 from models.user import User
+from models.query import Query
+from models.coordinate import Coordinate
 
 # Importar los routers de las rutas
 from routes.openAi import router as openAiRouter
 from routes.user import router as userRouter
 from routes.auth import router as authRouter
+from routes.query import router as queryRouter
 
 # Middlewares
 from middlewares.verification import PermissionMiddleware
@@ -53,3 +56,4 @@ async def read_root():
 app.include_router(openAiRouter, prefix="/openai")
 app.include_router(userRouter, prefix="/user")
 app.include_router(authRouter, prefix="/auth")
+app.include_router(queryRouter, prefix="/query")
