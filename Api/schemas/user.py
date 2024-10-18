@@ -1,6 +1,11 @@
-from pydantic import BaseModel, IPvAnyAddress
+from pydantic import BaseModel
 from typing import Optional, List
+from schemas.query import Query
 
+# Schema user interests
+class UserInterests(BaseModel):
+    interests: str
+    
 # Schema User
 class UserBase(BaseModel):
     pass
@@ -25,6 +30,7 @@ class User(UserBase):
     id: int
     username: str
     password: str
+    queries: List[Query] = []
 
     class Config:
         from_attributes = True
