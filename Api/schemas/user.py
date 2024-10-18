@@ -2,6 +2,10 @@ from pydantic import BaseModel
 from typing import Optional, List
 from schemas.query import Query
 
+# Schema user interests
+class UserInterests(BaseModel):
+    interests: str
+    
 # Schema User
 class UserBase(BaseModel):
     pass

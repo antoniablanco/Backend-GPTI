@@ -3,6 +3,7 @@ from typing import Optional, List
 from datetime import datetime
 from schemas.coordinate import Coordinate, CoordinateUpdate
 
+
 # Schema Answer
 class Answer(BaseModel):
     answer: str
