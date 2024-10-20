@@ -5,7 +5,7 @@ from database import get_db
 
 from schemas.user import UserUpdate, User
 from schemas.authentication import UserLogin, TokenData
-from cruds.auth import authenticate_user, get_token, hash_password, get_token_data
+from cruds.auth import authenticate_user, get_token, hash_password, get_token_data, get_token_from_header
 from cruds.user import create_user
 
 from dotenv import load_dotenv
@@ -48,5 +48,17 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+@router.get("/active_token", response_model=dict)
+def active_token(db: Session = Depends(get_db), token: str = Depends(get_token_from_header)):
+    token_data = get_token_data(token=token, db=db)
+    if token_data:
+        return {"message": "Token is active", "token_data": token_data}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token is invalid",
             headers={"WWW-Authenticate": "Bearer"}
         )
