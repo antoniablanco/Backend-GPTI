@@ -14,7 +14,7 @@ router = APIRouter()
 def read_user_endpoint(user_id: int, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id=user_id)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return db_user
 
 # Get all Users
@@ -28,7 +28,7 @@ def update_user_endpoint(user_id: int, user: UserUpdate, db: Session = Depends(g
     
     db_user = update_user(db=db, user_id=user_id, user=user)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return db_user
 
 # Delete User
@@ -36,6 +36,6 @@ def update_user_endpoint(user_id: int, user: UserUpdate, db: Session = Depends(g
 def delete_user_endpoint(user_id: int, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id=user_id)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     db_user = delete_user(db=db, user_id=user_id)
     return db_user

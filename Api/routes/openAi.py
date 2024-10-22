@@ -68,7 +68,7 @@ def generate_destination_answer(query: QueryBase, db: Session = Depends(get_db),
     token_data = get_token_data(token=token, db=db)
     user_db = get_user(db, user_id=token_data.user_id)
     if user_db is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
     # Crear la solicitud para Azure OpenAI
     message = f"Recomiendame un destino para viajar que sea de tipo {query.travel_type}, con un presupuesto de {query.budget} dolares y que sea para {query.duration} días. E ideal un clima {query.weather}. Que la respuesta siga el formato de: 'Nombre del destino; latitud; longitud; descripción'."
