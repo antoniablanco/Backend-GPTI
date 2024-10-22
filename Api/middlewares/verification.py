@@ -19,6 +19,9 @@ class PermissionMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         auth_header = request.headers.get('Authorization')
         
+        # Excluir solicitudes preflight OPTIONS
+        if request.method == "OPTIONS":
+            return await call_next(request)
         
         try:
             for path in self.permissions_list:
