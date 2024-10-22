@@ -53,7 +53,7 @@ async def read_root():
     return {"message":"Home page"}
 
 # Incluir los routers
-app.include_router(openAiRouter, prefix="/openai")
+app.include_router(openAiRouter)
 app.include_router(userRouter, prefix="/user")
 app.include_router(authRouter, prefix="/auth")
 app.include_router(queryRouter, prefix="/query")
