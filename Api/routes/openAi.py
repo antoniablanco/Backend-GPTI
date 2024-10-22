@@ -63,7 +63,7 @@ def generate_recommendations(user_interests: UserInterests):
         raise HTTPException(status_code=response.status_code, detail=f"Error al obtener recomendaciones, error is {e}")
 
 # Endpoint para generar recomendaciones
-@router.post("/destinations", response_model=Answer)
+@router.post("/openai/destinations", response_model=Answer)
 def generate_destination_answer(query: QueryBase, db: Session = Depends(get_db), token: str = Depends(get_token_from_header)):
     token_data = get_token_data(token=token, db=db)
     user_db = get_user(db, user_id=token_data.user_id)
@@ -82,3 +82,15 @@ def generate_destination_answer(query: QueryBase, db: Session = Depends(get_db),
     new_coordinate = CoordinateCreate(latitude=answer.split(";")[1][:-4], longitude=answer.split(";")[2][:-4], query_id=db_query.id, name=answer.split(";")[0])
     db_coordinate = create_coordinate(db, new_coordinate)
     return Answer(answer=answer_ia, latitude = new_coordinate.latitude, longitude = new_coordinate.longitude, name = new_coordinate.name)
+
+# Endpoint para generar recomendaciones cuando es anonimo
+@router.post("/destinations_anonymous", response_model=Answer)
+def generate_destination_answer(query: QueryBase, db: Session = Depends(get_db)):
+    # Crear la solicitud para Azure OpenAI
+    message = f"Recomiendame un destino para viajar que sea de tipo {query.travel_type}, con un presupuesto de {query.budget} dolares y que sea para {query.duration} días. E ideal un clima {query.weather}. Que la respuesta siga el formato de: 'Nombre del destino; latitud; longitud; descripción'."
+    interest = UserInterests(interests=message)
+
+    answer= generate_recommendations(interest)["recommendations"]
+    answer_ia = answer.split(";")[3]
+
+    return Answer(answer=answer_ia, latitude = answer.split(";")[1][:-4], longitude = answer.split(";")[2][:-4], name = answer.split(";")[0])
