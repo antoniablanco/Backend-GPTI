@@ -17,9 +17,9 @@ router = APIRouter()
 @router.post("/signup", response_model=dict)
 def sign_up(user: UserUpdate, db: Session = Depends(get_db)):
     if user.username is None:
-        raise HTTPException(status_code=400, detail="Username is required")
+        raise HTTPException(status_code=400, detail="El nombre de usuario es requerido")
     elif user.password is None:
-        raise HTTPException(status_code=400, detail="Password is required")
+        raise HTTPException(status_code=400, detail="La clave es requerida")
 
     user.password = hash_password(user.password)
     try:
@@ -32,11 +32,11 @@ def sign_up(user: UserUpdate, db: Session = Depends(get_db)):
         error_str = str(e.orig)
         if 'unique constraint' in error_str.lower():
             if 'username' in error_str.lower():
-                raise HTTPException(status_code=400, detail="Username already exists")
-        raise HTTPException(status_code=400, detail="Database integrity error")
+                raise HTTPException(status_code=400, detail="El nombre de usuario ya existe")
+        raise HTTPException(status_code=400, detail="Error de integridad en la base de datos")
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred {e}")
+        raise HTTPException(status_code=500, detail=f"Ha ocurrido un error no esperado: {e}")
 
 @router.post("/login", response_model=dict)
 def login(user: UserLogin, db: Session = Depends(get_db)):
@@ -47,7 +47,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Nombre de usuario o clave incorrectos",
             headers={"WWW-Authenticate": "Bearer"}
         )
 
@@ -59,6 +59,6 @@ def active_token(db: Session = Depends(get_db), token: str = Depends(get_token_f
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token is invalid",
+            detail="La token es invalida",
             headers={"WWW-Authenticate": "Bearer"}
         )

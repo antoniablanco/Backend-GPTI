@@ -22,15 +22,15 @@ def read_querys_endpoint(skip: int = 0, limit: int = 10, db: Session = Depends(g
 def read_query_endpoint(query_id: int, db: Session = Depends(get_db), token: str = Depends(get_token_from_header)):
     db_query = get_query(db, query_id=query_id)
     if db_query is None:
-        raise HTTPException(status_code=404, detail="Query not found")
+        raise HTTPException(status_code=404, detail="Consulta no encontrada")
     
     token_data = get_token_data(token=token, db=db)
     user_db = get_user(db, user_id=token_data.user_id)
     if user_db is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
     if user_db.id != db_query.user_id:
-        raise HTTPException(status_code=404, detail="You can only see your own queries")
+        raise HTTPException(status_code=404, detail="Solo puedes ver tus propias consultas")
 
 
     return db_query
@@ -41,7 +41,7 @@ def read_querys_endpoint(skip: int = 0, limit: int = 10, db: Session = Depends(g
     token_data = get_token_data(token=token, db=db)
     user_db = get_user(db, user_id=token_data.user_id)
     if user_db is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return get_queries_by_user_id(db, user_id=user_db.id)
 
 # Update Query
@@ -52,14 +52,14 @@ def update_query_endpoint(query_id: int, query: QueryUpdate, db: Session = Depen
     db_query = get_query(db, query_id=query_id)
 
     if user_db is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
     if user_db.id != db_query.user_id:
-        raise HTTPException(status_code=404, detail="You can only update your own queries")
+        raise HTTPException(status_code=404, detail="Solo puedes actualizar tus propias consultas")
 
     db_query = update_query(db=db, query_id=query_id, query=query)
     if db_query is None:
-        raise HTTPException(status_code=404, detail="Query not found")
+        raise HTTPException(status_code=404, detail="Consulta no encontrada")
     return db_query
 
 # Delete Query
@@ -70,13 +70,13 @@ def delete_query_endpoint(query_id: int, db: Session = Depends(get_db), token: s
     db_query = get_query(db, query_id=query_id)
 
     if user_db is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuario no enconrtado")
     
     if user_db.id != db_query.user_id:
-        raise HTTPException(status_code=404, detail="You can only delete your own queries")
+        raise HTTPException(status_code=404, detail="Solo puedes eliminar tus propias consultas")
 
 
     if db_query is None:
-        raise HTTPException(status_code=404, detail="Query not found")
+        raise HTTPException(status_code=404, detail="Consulta no encontrada")
     db_query = delete_query(db=db, query_id=query_id)
     return db_query
