@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from schemas.query import Query
+from schemas.medal_table import MedalTable
 
 # Schema user interests
 class UserInterests(BaseModel):
@@ -24,6 +25,8 @@ class UserUpdate(UserBase):
 class UserNotPassword(UserBase):
     id: int
     username: str
+    queries: List[Query] = []
+    medal_tables: List[MedalTable] = []
 
 # Schema for getting a User without password
 class User(UserBase):
@@ -31,6 +34,7 @@ class User(UserBase):
     username: str
     password: str
     queries: List[Query] = []
+    medal_tables: List[MedalTable] = []
 
     class Config:
         from_attributes = True

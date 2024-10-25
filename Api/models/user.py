@@ -10,3 +10,4 @@ class User(Base):
     password = Column(String(255), nullable=False)
 
     queries = relationship("Query", back_populates="user", cascade="all, delete-orphan")
+    medal_tables = relationship("MedalTable", back_populates="user", cascade="all, delete-orphan")
