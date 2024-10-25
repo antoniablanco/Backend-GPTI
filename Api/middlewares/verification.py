@@ -14,7 +14,7 @@ class PermissionMiddleware(BaseHTTPMiddleware):
     
     def __init__(self, app: Callable):
         super().__init__(app)
-        self.permissions_list = ["/user", "/openai", "/query"]
+        self.permissions_list = ["/user", "/openai", "/query", "/medal_table"]
 
     async def dispatch(self, request: Request, call_next):
         auth_header = request.headers.get('Authorization')
