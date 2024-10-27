@@ -6,6 +6,7 @@ from datetime import datetime
 class CoordinateBase(BaseModel):
     latitude: float
     longitude: float
+    answer: Optional[str] = None
 
 class CoordinateCreate(CoordinateBase):
     name: Optional[str] = None
