@@ -5,8 +5,10 @@ from database import get_db
 
 from schemas.user import UserUpdate, User
 from schemas.authentication import UserLogin, TokenData
+from schemas.medal_table import MedalTableCreate
 from cruds.auth import authenticate_user, get_token, hash_password, get_token_data, get_token_from_header
 from cruds.user import create_user
+from cruds.medal_table import create_medal_table
 
 from dotenv import load_dotenv
 import os
@@ -23,8 +25,13 @@ def sign_up(user: UserUpdate, db: Session = Depends(get_db)):
 
     user.password = hash_password(user.password)
     try:
-        create_user(db=db, user=user)
+        user_db = create_user(db=db, user=user)
         access_token = get_token(user, db)
+
+        medal_table_info = MedalTableCreate(user_id=user_db.id, africa=False, americas=False, asia=False, europe=False, oceania=False, antartica=False)
+        create_medal_table(db=db, medal_table=medal_table_info)
+
+
         return {"message": "Login successful", "token": access_token, "token_type": "bearer"}
     
     except IntegrityError as e:

@@ -9,10 +9,9 @@ class Query(Base):
     time_stamp = Column(DateTime(timezone=True), index=True)
     travel_type = Column(String(100), index=True)
     budget = Column(Integer, index=True) # in dollars
-    destination = Column(String(100), index=True)
     weather = Column(String(100), index=True)
     duration = Column(Integer, index=True) # in days
-    ia_answer = Column(String(500), index=True) 
+    ia_answer = Column(String(1000), index=True) 
     
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="queries")

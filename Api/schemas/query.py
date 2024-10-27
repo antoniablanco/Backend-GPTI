@@ -11,11 +11,13 @@ class Answer(BaseModel):
     longitude: float
     name: str
 
+class Answers(BaseModel):
+    coordinates: List[Answer] = []
+
 # Schema Query
 class QueryBase(BaseModel):
     travel_type: Optional[str] = None
     budget: Optional[int] = None
-    destination: Optional[str] = None
     weather: Optional[str] = None
     duration: Optional[int] = None
 

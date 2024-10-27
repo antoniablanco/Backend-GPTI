@@ -29,41 +29,6 @@ def update_medal_table_endpoint(medal_table: MedalTableUpdate, db: Session = Dep
         raise HTTPException(status_code=404, detail="Medallero no encontrado")
     return db_medal_table
 
-# Create basic MedalTable for other user
-@router.post("/basic/{user_id}", response_model=MedalTable)
-def create_basic_medal_table_endpoint(user_id: int, db: Session = Depends(get_db), token: str = Depends(get_token_from_header)):
-    token_data = get_token_data(token=token, db=db)
-    user_db = get_user(db, user_id=token_data.user_id)
-    if user_db is None:
-        raise HTTPException(status_code=404, detail="Usuario del token no encontrado")
-    other_user = get_user(db, user_id=user_id)
-    if other_user is None:
-        raise HTTPException(status_code=404, detail=f"Usuario {user_id} no encontrado")
-    exist_medal_table = get_medal_table_by_user_id(db, user_id=other_user.id)
-    if exist_medal_table is not None:
-        raise HTTPException(status_code=400, detail=f"Usuario {other_user.id} ya posee un medallero")
-    try:
-        medal_table_info = MedalTableCreate(user_id=user_id, africa=False, americas=False, asia=False, europe=False, oceania=False, antartica=False)
-        return create_medal_table(db=db, medal_table=medal_table_info)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al crear medallero: {e}")
-
-# Create MedalTable for authenticated user
-@router.post("/", response_model=MedalTable)
-def create_medal_table_endpoint(medal_table: MedalTableUpdate, db: Session = Depends(get_db), token: str = Depends(get_token_from_header)):
-    token_data = get_token_data(token=token, db=db)
-    user_db = get_user(db, user_id=token_data.user_id)
-    if user_db is None:
-        raise HTTPException(status_code=404, detail="Usuario del token no encontrado")
-    exist_medal_table = get_medal_table_by_user_id(db, user_id=user_db.id)
-    if exist_medal_table is not None:
-        raise HTTPException(status_code=400, detail=f"Usuario {user_db.id} ya posee un medallero")
-    try:
-        medal_table_info = MedalTableCreate(user_id=user_db.id, africa=medal_table.africa, americas=medal_table.americas, asia=medal_table.asia, europe=medal_table.europe, oceania=medal_table.oceania, antartica=medal_table.antartica)
-        return create_medal_table(db=db, medal_table=medal_table_info)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al crear medallero: {e}")
-
 # Get MedalTable of authenticated user
 @router.get("/my_medal_table", response_model=MedalTable)
 def read_my_medal_table_endpoint(token: str = Depends(get_token_from_header), db: Session = Depends(get_db)):

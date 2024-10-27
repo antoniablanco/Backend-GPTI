@@ -1,7 +1,7 @@
 from database import get_db
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from schemas.query import Answer, QueryBase, QueryCreate
+from schemas.query import Answers, Answer, QueryBase, QueryCreate
 from schemas.coordinate import Coordinate, CoordinateCreate, CoordinateBase, CoordinateUpdate
 from schemas.user import UserInterests
 from cruds.query import create_query
@@ -43,7 +43,7 @@ def generate_recommendations(user_interests: UserInterests):
                 "content": f"Recomienda destinos de viaje para alguien interesado en {user_interests.interests}"
             }
         ],
-        "max_tokens": 100,
+        "max_tokens": 300,
         "temperature": 0.7
     }
 
@@ -57,13 +57,13 @@ def generate_recommendations(user_interests: UserInterests):
 
         response.raise_for_status()
         result = response.json()
-        answer = result["choices"][0]["message"]["content"].split("\n\n2.")[0]
+        answer = result["choices"][0]["message"]["content"].split("\n* ")
         return {"recommendations": answer}
     except requests.HTTPError as e:
         raise HTTPException(status_code=response.status_code, detail=f"Error al obtener recomendaciones, error is {e}")
 
 # Endpoint para generar recomendaciones
-@router.post("/openai/destinations", response_model=Answer)
+@router.post("/openai/destinations", response_model=Answers)
 def generate_destination_answer(query: QueryBase, db: Session = Depends(get_db), token: str = Depends(get_token_from_header)):
     token_data = get_token_data(token=token, db=db)
     user_db = get_user(db, user_id=token_data.user_id)
@@ -71,18 +71,27 @@ def generate_destination_answer(query: QueryBase, db: Session = Depends(get_db),
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
     # Crear la solicitud para Azure OpenAI
-    message = f"Recomiendame un destino para viajar que sea de tipo {query.travel_type}, con un presupuesto de {query.budget} dolares y que sea para {query.duration} días. E ideal un clima {query.weather}. Que la respuesta siga el formato de: 'Nombre del destino; latitud; longitud; descripción'."
+    message = f"Recomiendame destinos para viajar que sean de tipo {query.travel_type}, con un presupuesto de {query.budget} dolares y que sea para {query.duration} días. E ideal un clima {query.weather}. Que la respuesta siga el formato de: '* Nombre del destino; latitud; longitud; descripción * Nombre del destino; latitud; longitud; descripción * Nombre del destino; latitud; longitud; descripción'."
     interest = UserInterests(interests=message)
 
-    answer= generate_recommendations(interest)["recommendations"]
-    print("-----answer; ", answer)
-    answer_ia = answer.split(";")[3]
-    new_query = QueryCreate(**query.dict(), ia_answer=answer_ia, time_stamp=datetime.now(), user_id=user_db.id)
+    answers = generate_recommendations(interest)["recommendations"]
+    text = ""
+    for answer in answers:
+        answer_ia = answer.split(";")[3]
+        text += " "+answer_ia
+    
+    new_query = QueryCreate(**query.dict(), ia_answer=text, time_stamp=datetime.now(), user_id=user_db.id)
     db_query = create_query(db, new_query)
 
-    new_coordinate = CoordinateCreate(latitude=answer.split(";")[1][:-4], longitude=answer.split(";")[2][:-4], query_id=db_query.id, name=answer.split(";")[0])
-    db_coordinate = create_coordinate(db, new_coordinate)
-    return Answer(answer=answer_ia, latitude = new_coordinate.latitude, longitude = new_coordinate.longitude, name = new_coordinate.name)
+    response = []
+    
+    for answer in answers:
+        answer_ia = answer.split(";")[3]
+        new_coordinate = CoordinateCreate(latitude=answer.split(";")[1][:-4], longitude=answer.split(";")[2][:-4], query_id=db_query.id, name=answer.split(";")[0], answer = answer_ia)
+        db_coordinate = create_coordinate(db, new_coordinate)
+        response.append(Answer(answer=answer_ia, latitude = new_coordinate.latitude, longitude = new_coordinate.longitude, name = new_coordinate.name))
+
+    return Answers(coordinates = response)
 
 # Endpoint para generar recomendaciones cuando es anonimo
 @router.post("/destinations_anonymous", response_model=Answer)
