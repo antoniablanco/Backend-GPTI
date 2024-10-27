@@ -75,8 +75,9 @@ def generate_destination_answer(query: QueryBase, db: Session = Depends(get_db),
     interest = UserInterests(interests=message)
 
     answer= generate_recommendations(interest)["recommendations"]
+    print("-----answer; ", answer)
     answer_ia = answer.split(";")[3]
-    new_query = QueryCreate(**query.dict(), answer=answer_ia, time_stamp=datetime.now(), user_id=user_db.id)
+    new_query = QueryCreate(**query.dict(), ia_answer=answer_ia, time_stamp=datetime.now(), user_id=user_db.id)
     db_query = create_query(db, new_query)
 
     new_coordinate = CoordinateCreate(latitude=answer.split(";")[1][:-4], longitude=answer.split(";")[2][:-4], query_id=db_query.id, name=answer.split(";")[0])

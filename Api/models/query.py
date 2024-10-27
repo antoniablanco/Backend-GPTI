@@ -12,7 +12,7 @@ class Query(Base):
     destination = Column(String(100), index=True)
     weather = Column(String(100), index=True)
     duration = Column(Integer, index=True) # in days
-    ia_answer = Column(String(255), index=True) 
+    ia_answer = Column(String(500), index=True) 
     
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="queries")

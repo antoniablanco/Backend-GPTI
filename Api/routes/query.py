@@ -70,7 +70,7 @@ def delete_query_endpoint(query_id: int, db: Session = Depends(get_db), token: s
     db_query = get_query(db, query_id=query_id)
 
     if user_db is None:
-        raise HTTPException(status_code=404, detail="Usuario no enconrtado")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
     if user_db.id != db_query.user_id:
         raise HTTPException(status_code=404, detail="Solo puedes eliminar tus propias consultas")
