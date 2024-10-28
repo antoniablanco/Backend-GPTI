@@ -4,7 +4,8 @@ from typing import Optional, List
 # Schema MedalTable
 class MedalTableBase(BaseModel):
     africa: Optional[bool] = False
-    americas: Optional[bool] = False
+    north_america: Optional[bool] = False
+    south_america: Optional[bool] = False
     asia: Optional[bool] = False
     europe: Optional[bool] = False
     oceania : Optional[bool] = False
