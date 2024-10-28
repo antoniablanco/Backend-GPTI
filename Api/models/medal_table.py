@@ -7,8 +7,9 @@ class MedalTable(Base):
     __tablename__ = "medal_tables"
     id = Column(Integer, primary_key=True, index=True)
     africa = Column(Boolean, index=True)
-    americas = Column(Boolean, index=True)
     asia = Column(Boolean, index=True)
+    north_america = Column(Boolean, index=True)
+    south_america = Column(Boolean, index=True)
     europe = Column(Boolean, index=True)
     oceania = Column(Boolean, index=True)
     antartica = Column(Boolean, index=True)
