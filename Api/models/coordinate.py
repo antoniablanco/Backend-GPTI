@@ -10,6 +10,7 @@ class Coordinate(Base):
     longitude = Column(Float, nullable=False, index=True)
     name = Column(String(100), index=True)
     answer = Column(String(500), index=True)
+    stars = Column(Integer, index=True)
 
     query_id = Column(Integer, ForeignKey("queries.id"))
     query = relationship("Query", back_populates="coordinates")

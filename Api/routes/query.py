@@ -3,14 +3,34 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from database import get_db
 from cruds.query import create_query, get_query, get_queries, update_query, delete_query, get_queries_by_user_id
+from cruds.coordinate import update_coordinate, get_coordinate, get_coordinates, create_coordinate, delete_coordinate
 from cruds.auth import authenticate_user, get_token, hash_password, get_token_data, get_token_from_header
 from cruds.user import get_user
 from schemas.query import QueryCreate, QueryUpdate, Query
+from schemas.coordinate import CoordinateCreate, CoordinateUpdate, Coordinate, Grade
 from typing import List
 from datetime import datetime
 
 router = APIRouter()
 
+# Grade a coordinate of a query
+@router.post("/grade_coordinate", response_model=Coordinate)
+def grade_coordinate_endpoint(grade: Grade, db: Session = Depends(get_db), token: str = Depends(get_token_from_header)):
+    token_data = get_token_data(token=token, db=db)
+    user_db = get_user(db, user_id=token_data.user_id)
+    if user_db is None:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    db_coordinate = get_coordinate(db, coordinate_id=grade.coordinate_id)
+
+    if db_coordinate is None:
+        raise HTTPException(status_code=404, detail="Coordenada no encontrada")
+    
+    if grade.stars < 0 or grade.stars > 5:
+        raise HTTPException(status_code=400, detail="La calificación debe ser un número entre 0 y 5")
+    
+    return update_coordinate(db=db, coordinate_id=grade.coordinate_id, coordinate=CoordinateUpdate(stars=grade.stars))
+    
 
 # Get all Querys
 @router.get("/all", response_model=List[Query])

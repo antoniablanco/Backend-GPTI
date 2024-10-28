@@ -14,10 +14,6 @@ def create_coordinate(db: Session, coordinate: CoordinateCreate):
 def get_coordinate(db: Session, coordinate_id: int):
     return db.query(CoordinateModel).filter(CoordinateModel.id == coordinate_id).first()
 
-# Retrieve a coordinate by coordinatename
-def get_coordinate_by_coordinatename(db: Session, coordinatename: str):
-    return db.query(CoordinateModel).filter(CoordinateModel.coordinatename == coordinatename).first()
-
 # Retrieve all coordinates
 def get_coordinates(db: Session, skip: int = 0, limit: int = 100):
     return db.query(CoordinateModel).offset(skip).limit(limit).all()
