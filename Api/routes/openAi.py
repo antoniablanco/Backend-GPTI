@@ -89,7 +89,7 @@ def generate_destination_answer(query: QueryBase, db: Session = Depends(get_db),
         answer_ia = answer.split(";")[3]
         new_coordinate = CoordinateCreate(latitude=answer.split(";")[1][:-4], longitude=answer.split(";")[2][:-4], query_id=db_query.id, name=answer.split(";")[0], answer = answer_ia)
         db_coordinate = create_coordinate(db, new_coordinate)
-        response.append(Answer(answer=answer_ia, latitude = new_coordinate.latitude, longitude = new_coordinate.longitude, name = new_coordinate.name))
+        response.append(Answer(answer=answer_ia, latitude = new_coordinate.latitude, longitude = new_coordinate.longitude, name = new_coordinate.name, coordinate_id=db_coordinate.id))
 
     return Answers(coordinates = response)
 
