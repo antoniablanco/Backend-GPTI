@@ -10,7 +10,7 @@ class Answer(BaseModel):
     latitude: float
     longitude: float
     name: str
-    coordinate_id: int
+    coordinate_id: Optional[int]=None
 
 class Answers(BaseModel):
     coordinates: List[Answer] = []
