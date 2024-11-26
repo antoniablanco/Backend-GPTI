@@ -71,36 +71,53 @@ def generate_destination_answer(query: QueryBase, db: Session = Depends(get_db),
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
     # Crear la solicitud para Azure OpenAI
-    message = f"Recomiendame destinos para viajar que sean de tipo {query.travel_type}, con un presupuesto de {query.budget} dolares y que sea para {query.duration} días. E ideal un clima {query.weather}. Que la respuesta siga el formato de: '* Nombre del destino; latitud; longitud; descripción * Nombre del destino; latitud; longitud; descripción * Nombre del destino; latitud; longitud; descripción'."
-    interest = UserInterests(interests=message)
+    try:
+        message = f"Recomiendame destinos para viajar que sean de tipo {query.travel_type}, con un presupuesto de {query.budget} dolares y que sea para {query.duration} días. E ideal un clima {query.weather}. Que la respuesta siga el formato de: '* Nombre del destino; latitud; longitud; descripción * Nombre del destino; latitud; longitud; descripción * Nombre del destino; latitud; longitud; descripción'."
+        interest = UserInterests(interests=message)
 
-    answers = generate_recommendations(interest)["recommendations"]
-    text = ""
-    for answer in answers:
-        answer_ia = answer.split(";")[3]
-        text += " "+answer_ia
-    
-    new_query = QueryCreate(**query.dict(), ia_answer=text, time_stamp=datetime.now(), user_id=user_db.id)
-    db_query = create_query(db, new_query)
+        answers = generate_recommendations(interest)["recommendations"]
+        text = ""
+        for answer in answers:
+            answer_ia = answer.split(";")[3]
+            text += " "+answer_ia
+        
+        new_query = QueryCreate(**query.dict(), ia_answer=text, time_stamp=datetime.now(), user_id=user_db.id)
+        db_query = create_query(db, new_query)
 
-    response = []
-    
-    for answer in answers:
-        answer_ia = answer.split(";")[3]
-        new_coordinate = CoordinateCreate(latitude=answer.split(";")[1][:-4], longitude=answer.split(";")[2][:-4], query_id=db_query.id, name=answer.split(";")[0], answer = answer_ia)
-        db_coordinate = create_coordinate(db, new_coordinate)
-        response.append(Answer(answer=answer_ia, latitude = new_coordinate.latitude, longitude = new_coordinate.longitude, name = new_coordinate.name, coordinate_id=db_coordinate.id))
+        response = []
+        
+        for answer in answers:
+            answer_ia = answer.split(";")[3]
+            new_coordinate = CoordinateCreate(latitude=answer.split(";")[1][:-4], longitude=answer.split(";")[2][:-4], query_id=db_query.id, name=answer.split(";")[0], answer = answer_ia)
+            db_coordinate = create_coordinate(db, new_coordinate)
+            response.append(Answer(answer=answer_ia, latitude = new_coordinate.latitude, longitude = new_coordinate.longitude, name = new_coordinate.name, coordinate_id=db_coordinate.id))
 
-    return Answers(coordinates = response)
+        return Answers(coordinates = response)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="Error al obtener recomendaciones, vuelva a intentarlo")
 
 # Endpoint para generar recomendaciones cuando es anonimo
-@router.post("/destinations_anonymous", response_model=Answer)
+@router.post("/destinations_anonymous", response_model=Answers)
 def generate_destination_answer(query: QueryBase, db: Session = Depends(get_db)):
     # Crear la solicitud para Azure OpenAI
-    message = f"Recomiendame un destino para viajar que sea de tipo {query.travel_type}, con un presupuesto de {query.budget} dolares y que sea para {query.duration} días. E ideal un clima {query.weather}. Que la respuesta siga el formato de: 'Nombre del destino; latitud; longitud; descripción'."
-    interest = UserInterests(interests=message)
 
-    answer= generate_recommendations(interest)["recommendations"]
-    answer_ia = answer.split(";")[3]
+    try: 
+        message = f"Recomiendame destinos para viajar que sean de tipo {query.travel_type}, con un presupuesto de {query.budget} dolares y que sea para {query.duration} días. E ideal un clima {query.weather}. Que la respuesta siga el formato de: '* Nombre del destino; latitud; longitud; descripción * Nombre del destino; latitud; longitud; descripción * Nombre del destino; latitud; longitud; descripción'."
+        interest = UserInterests(interests=message)
+        
 
-    return Answer(answer=answer_ia, latitude = answer.split(";")[1][:-4], longitude = answer.split(";")[2][:-4], name = answer.split(";")[0])
+        answers = generate_recommendations(interest)["recommendations"]
+        text = ""
+        for answer in answers:
+            answer_ia = answer.split(";")[3]
+            text += " "+answer_ia
+        
+        response = []
+        for answer in answers:
+            answer_ia = answer.split(";")[3]
+            response.append(Answer(answer=answer_ia, latitude=answer.split(";")[1][:-4], longitude=answer.split(";")[2][:-4], name=answer.split(";")[0]))
+
+        return Answers(coordinates = response)
+    
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="Error al obtener recomendaciones, vuelva a intentarlo")
